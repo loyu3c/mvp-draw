@@ -58,16 +58,24 @@
   @keyframes huebreath{0%,100%{filter:brightness(1)}50%{filter:brightness(1.25)}}
   .subtitle{color:var(--chalk-dim);font-size:17px;font-weight:600;margin-bottom:44px;}
 
-  .categories{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;max-width:800px;margin:0 auto 40px;}
-  .cat-bulb{background:var(--panel);border:2px solid var(--line);border-radius:16px;padding:16px 8px;transition:.2s;}
+  .categories{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;max-width:920px;margin:0 auto 44px;}
+  .cat-bulb{background:var(--panel);border:2px solid var(--line);border-radius:20px;padding:24px 14px 20px;transition:.2s;}
   .cat-bulb:nth-child(1){border-color:rgba(255,106,0,.5);}
   .cat-bulb:nth-child(2){border-color:rgba(0,230,184,.5);}
   .cat-bulb:nth-child(3){border-color:rgba(255,46,154,.5);}
   .cat-bulb:nth-child(4){border-color:rgba(255,212,0,.5);}
   .cat-bulb.spin-highlight{transform:translateY(-4px) scale(1.05);box-shadow:0 10px 26px -10px rgba(255,255,255,.25);}
-  .cat-bulb .num{font-family:'Anton',sans-serif;font-size:12px;color:var(--turf);letter-spacing:.1em;}
-  .cat-bulb .name{font-family:'Baloo 2',sans-serif;font-weight:700;font-size:14px;margin-top:4px;}
-  .cat-bulb .who{font-size:13px;color:var(--chalk-dim);margin-top:2px;font-weight:600;}
+  .cat-bulb .avatar{
+    width:96px;height:96px;border-radius:50%;overflow:hidden;margin:0 auto 14px;
+    background:linear-gradient(160deg,var(--panel-2),#200f42);
+    display:flex;align-items:center;justify-content:center;color:var(--chalk-dim);
+    border:2px solid rgba(255,255,255,.14);
+  }
+  .cat-bulb .avatar img{width:100%;height:100%;object-fit:cover;display:block;}
+  .cat-bulb .avatar svg{width:56%;height:56%;}
+  .cat-bulb .num{font-family:'Anton',sans-serif;font-size:13px;color:var(--turf);letter-spacing:.1em;}
+  .cat-bulb .name{font-family:'Baloo 2',sans-serif;font-weight:700;font-size:16px;margin-top:5px;}
+  .cat-bulb .who{font-size:15px;color:var(--chalk-dim);margin-top:3px;font-weight:600;}
 
   .jumbotron{
     position:relative;background:linear-gradient(160deg,var(--panel-2),var(--panel) 60%, #200f42);
@@ -132,12 +140,7 @@
     <h1 class="title-xl">年度運動會<br><span class="accent">MVP</span> 榮耀時刻</h1>
     <p class="subtitle">四項競賽冠軍已就位，等待主持人於後台開獎</p>
 
-    <div class="categories" id="categoryBulbs">
-      <div class="cat-bulb"><div class="num">01</div><div class="name">冠軍</div><div class="who">—</div></div>
-      <div class="cat-bulb"><div class="num">02</div><div class="name">冠軍</div><div class="who">—</div></div>
-      <div class="cat-bulb"><div class="num">03</div><div class="name">冠軍</div><div class="who">—</div></div>
-      <div class="cat-bulb"><div class="num">04</div><div class="name">冠軍</div><div class="who">—</div></div>
-    </div>
+    <div class="categories" id="categoryBulbs"></div>
 
     <div class="jumbotron">
       <div class="sweep"></div>
@@ -251,17 +254,22 @@ document.addEventListener('fullscreenchange', ()=>{
   btn.classList.toggle('active', !!document.fullscreenElement);
 });
 
+const DEFAULT_AVATAR = `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="38" r="20" fill="currentColor"/><path d="M15 92c0-24 16-38 35-38s35 14 35 38" fill="currentColor"/></svg>`;
+
 function renderBulbs(){
   const box = document.getElementById('categoryBulbs');
   box.innerHTML='';
-  categories.forEach((c,i)=>{
+  const items = categories.length ? categories : [null,null,null,null];
+  items.forEach((c,i)=>{
     const el = document.createElement('div');
     el.className = 'cat-bulb';
     el.id = 'bulb'+i;
-    el.innerHTML = `<div class="num">0${i+1} · ${c.game}</div><div class="name">冠軍</div><div class="who">${c.name}</div>`;
+    const avatar = c && c.photo ? `<img src="${c.photo}" alt="">` : DEFAULT_AVATAR;
+    el.innerHTML = `<div class="avatar">${avatar}</div><div class="num">0${i+1}${c ? ' · '+c.game : ''}</div><div class="name">冠軍</div><div class="who">${c ? c.name : '—'}</div>`;
     box.appendChild(el);
   });
 }
+renderBulbs();
 
 function startCountdown(n, onDone){
   spinning = true;

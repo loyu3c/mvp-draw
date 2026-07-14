@@ -57,6 +57,25 @@
     font-size:10px;border-radius:6px;margin-right:6px;
   }
 
+  .photo-row{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
+  .avatar-preview{
+    width:52px;height:52px;border-radius:50%;overflow:hidden;flex-shrink:0;
+    background:#160A30;border:2px solid var(--line);color:var(--chalk-dim);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .avatar-preview img{width:100%;height:100%;object-fit:cover;display:block;}
+  .avatar-preview svg{width:56%;height:56%;}
+  .upload-btn{
+    font-family:'Baloo 2',sans-serif;font-weight:700;font-size:13px;color:var(--turf);
+    background:#160A30;border:2px solid rgba(0,230,184,.35);border-radius:999px;
+    padding:8px 16px;cursor:pointer;transition:.15s;
+  }
+  .upload-btn:hover{border-color:var(--turf);}
+  .clear-btn{
+    font-family:'Baloo 2',sans-serif;font-weight:700;font-size:13px;color:var(--chalk-dim);
+    background:none;border:none;cursor:pointer;padding:8px 4px;text-decoration:underline;
+  }
+
   .status-strip{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
   .status-chip{
     font-family:'Baloo 2',sans-serif;font-size:11px;font-weight:700;padding:6px 12px;border-radius:999px;
@@ -105,17 +124,37 @@
         <div class="field"><label><span class="num-badge">1</span>項目名稱</label><input type="text" id="game1" value="投籃" oninput="syncStatus()"></div>
         <div class="field"><label>第一名姓名</label><input type="text" id="name1" value="林小明" oninput="syncStatus()"></div>
       </div>
+      <div class="photo-row">
+        <div class="avatar-preview" id="preview1"></div>
+        <label class="upload-btn">📷 上傳照片<input type="file" accept="image/*" id="photo1" onchange="handlePhoto(1)" hidden></label>
+        <button type="button" class="clear-btn" onclick="clearPhoto(1)">清除</button>
+      </div>
       <div class="field-row">
         <div class="field"><label><span class="num-badge">2</span>項目名稱</label><input type="text" id="game2" value="大隊接力" oninput="syncStatus()"></div>
         <div class="field"><label>第一名姓名</label><input type="text" id="name2" value="陳小明" oninput="syncStatus()"></div>
+      </div>
+      <div class="photo-row">
+        <div class="avatar-preview" id="preview2"></div>
+        <label class="upload-btn">📷 上傳照片<input type="file" accept="image/*" id="photo2" onchange="handlePhoto(2)" hidden></label>
+        <button type="button" class="clear-btn" onclick="clearPhoto(2)">清除</button>
       </div>
       <div class="field-row">
         <div class="field"><label><span class="num-badge">3</span>項目名稱</label><input type="text" id="game3" value="吹泡泡" oninput="syncStatus()"></div>
         <div class="field"><label>第一名姓名</label><input type="text" id="name3" value="王小明" oninput="syncStatus()"></div>
       </div>
+      <div class="photo-row">
+        <div class="avatar-preview" id="preview3"></div>
+        <label class="upload-btn">📷 上傳照片<input type="file" accept="image/*" id="photo3" onchange="handlePhoto(3)" hidden></label>
+        <button type="button" class="clear-btn" onclick="clearPhoto(3)">清除</button>
+      </div>
       <div class="field-row">
         <div class="field"><label><span class="num-badge">4</span>項目名稱</label><input type="text" id="game4" value="動動" oninput="syncStatus()"></div>
         <div class="field"><label>第一名姓名</label><input type="text" id="name4" value="王小二" oninput="syncStatus()"></div>
+      </div>
+      <div class="photo-row">
+        <div class="avatar-preview" id="preview4"></div>
+        <label class="upload-btn">📷 上傳照片<input type="file" accept="image/*" id="photo4" onchange="handlePhoto(4)" hidden></label>
+        <button type="button" class="clear-btn" onclick="clearPhoto(4)">清除</button>
       </div>
       <button class="btn btn-secondary" id="syncBtn" onclick="syncCategories()">📤 同步名單到大螢幕</button>
     </div>
@@ -158,6 +197,41 @@ function fieldIds(){
   return [1,2,3,4].map(i=>({game:document.getElementById('game'+i), name:document.getElementById('name'+i)}));
 }
 
+const DEFAULT_AVATAR = `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="38" r="20" fill="currentColor"/><path d="M15 92c0-24 16-38 35-38s35 14 35 38" fill="currentColor"/></svg>`;
+const photos = {1:null, 2:null, 3:null, 4:null};
+
+[1,2,3,4].forEach(i=> document.getElementById('preview'+i).innerHTML = DEFAULT_AVATAR);
+
+function handlePhoto(i){
+  const input = document.getElementById('photo'+i);
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (e)=>{
+    const img = new Image();
+    img.onload = ()=>{
+      const size = 240;
+      const canvas = document.createElement('canvas');
+      canvas.width = size; canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      const s = Math.min(img.width, img.height);
+      const sx = (img.width - s) / 2, sy = (img.height - s) / 2;
+      ctx.drawImage(img, sx, sy, s, s, 0, 0, size, size);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.72);
+      photos[i] = dataUrl;
+      document.getElementById('preview'+i).innerHTML = `<img src="${dataUrl}" alt="">`;
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearPhoto(i){
+  photos[i] = null;
+  document.getElementById('photo'+i).value = '';
+  document.getElementById('preview'+i).innerHTML = DEFAULT_AVATAR;
+}
+
 function syncStatus(){
   const strip = document.getElementById('statusStrip');
   const warn = document.getElementById('warnMsg');
@@ -190,7 +264,7 @@ function syncCategories(){
 }
 
 function collectCategories(){
-  return fieldIds().map(f=>({game:f.game.value.trim(), name:f.name.value.trim()}));
+  return fieldIds().map((f,idx)=>({game:f.game.value.trim(), name:f.name.value.trim(), photo: photos[idx+1] || null}));
 }
 
 function showToast(msg){
