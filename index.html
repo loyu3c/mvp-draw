@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MVP 抽獎機</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Baloo+2:wght@600;700;800&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#1A0B33; --panel:#2A1454; --line:#4A2C87;
+    --turf:#00E6B8; --gold:#FFD400; --orange:#FF6A00; --pink:#FF2E9A;
+    --chalk:#FFFFFF; --chalk-dim:#C9B8F0;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;
+    background:
+      radial-gradient(ellipse 800px 500px at 12% -8%, rgba(255,106,0,.35), transparent 55%),
+      radial-gradient(ellipse 800px 550px at 90% 0%, rgba(255,46,154,.30), transparent 55%),
+      linear-gradient(160deg, #1A0B33 0%, #250F4A 45%, #1A0B33 100%);
+    color:var(--chalk);font-family:'Rajdhani',sans-serif;
+  }
+  .wrap{max-width:520px;padding:24px;text-align:center;}
+  h1{font-family:'Anton',sans-serif;font-size:clamp(30px,6vw,44px);margin:0 0 8px;}
+  h1 .accent{background:linear-gradient(90deg,var(--gold),var(--orange),var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  p.sub{color:var(--chalk-dim);margin:0 0 32px;font-weight:600;}
+  .links{display:flex;flex-direction:column;gap:14px;}
+  a.card{
+    display:flex;align-items:center;gap:14px;text-align:left;
+    background:var(--panel);border:2px solid var(--line);border-radius:16px;
+    padding:18px 20px;text-decoration:none;color:var(--chalk);transition:.15s;
+  }
+  a.card:hover{transform:translateY(-2px);border-color:var(--pink);}
+  a.card .emoji{font-size:28px;}
+  a.card b{font-family:'Baloo 2',sans-serif;font-size:16px;display:block;}
+  a.card span{color:var(--chalk-dim);font-size:13px;}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>MVP <span class="accent">抽獎機</span></h1>
+    <p class="sub">礁溪老爺酒店 · 年度運動會</p>
+    <div class="links">
+      <a class="card" href="screen.html">
+        <span class="emoji">🖥️</span>
+        <span><b>大螢幕頁面</b><span>投影用，顯示抽獎動畫</span></span>
+      </a>
+      <a class="card" href="admin.html">
+        <span class="emoji">📱</span>
+        <span><b>後台輸入頁面</b><span>手機用，輸入名單並開獎</span></span>
+      </a>
+    </div>
+  </div>
+</body>
+</html>

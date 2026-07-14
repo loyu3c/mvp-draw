@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MVP 抽獎機 · 大螢幕</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Baloo+2:wght@500;600;700;800&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#1A0B33; --panel:#2A1454; --panel-2:#341A66; --line:#4A2C87;
+    --turf:#00E6B8; --gold:#FFD400; --orange:#FF6A00; --pink:#FF2E9A;
+    --chalk:#FFFFFF; --chalk-dim:#C9B8F0;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--chalk);font-family:'Rajdhani',sans-serif;}
+  .stadium-bg{
+    position:relative;min-height:100vh;overflow:hidden;
+    background:
+      radial-gradient(ellipse 800px 500px at 12% -8%, rgba(255,106,0,.35), transparent 55%),
+      radial-gradient(ellipse 800px 550px at 90% 0%, rgba(255,46,154,.30), transparent 55%),
+      radial-gradient(ellipse 900px 600px at 50% 110%, rgba(0,230,184,.22), transparent 55%),
+      linear-gradient(160deg, #1A0B33 0%, #250F4A 45%, #1A0B33 100%);
+  }
+  .stadium-bg::after{
+    content:'';position:absolute;inset:0;pointer-events:none;
+    background:repeating-linear-gradient(115deg, rgba(255,255,255,.035) 0 3px, transparent 3px 46px);
+  }
+  .conn-badge{
+    position:fixed;top:16px;right:16px;font-family:'Baloo 2',sans-serif;font-size:12px;font-weight:700;
+    padding:6px 14px;border-radius:999px;background:rgba(0,230,184,.15);color:var(--turf);
+    border:1px solid rgba(0,230,184,.4);z-index:10;
+  }
+  .conn-badge.off{background:rgba(255,46,154,.15);color:var(--pink);border-color:rgba(255,46,154,.4);}
+
+  .draw-wrap{max-width:960px;margin:0 auto;text-align:center;padding:64px 24px 80px;}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;color:#fff;font-family:'Baloo 2',sans-serif;
+    font-weight:700;font-size:13px;letter-spacing:.15em;background:linear-gradient(90deg,var(--pink),var(--orange));
+    padding:7px 18px;border-radius:999px;margin-bottom:22px;
+  }
+  .eyebrow .dot{width:7px;height:7px;border-radius:50%;background:#fff;box-shadow:0 0 8px #fff;animation:pulse 1.4s infinite;}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  .title-xl{font-family:'Anton',sans-serif;font-size:clamp(40px,7vw,72px);line-height:1;margin:0 0 8px;}
+  .title-xl .accent{
+    background:linear-gradient(90deg,var(--gold),var(--orange),var(--pink));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    display:inline-block;animation:huebreath 5s ease-in-out infinite;
+  }
+  @keyframes huebreath{0%,100%{filter:brightness(1)}50%{filter:brightness(1.25)}}
+  .subtitle{color:var(--chalk-dim);font-size:17px;font-weight:600;margin-bottom:44px;}
+
+  .categories{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;max-width:800px;margin:0 auto 40px;}
+  .cat-bulb{background:var(--panel);border:2px solid var(--line);border-radius:16px;padding:16px 8px;transition:.2s;}
+  .cat-bulb:nth-child(1){border-color:rgba(255,106,0,.5);}
+  .cat-bulb:nth-child(2){border-color:rgba(0,230,184,.5);}
+  .cat-bulb:nth-child(3){border-color:rgba(255,46,154,.5);}
+  .cat-bulb:nth-child(4){border-color:rgba(255,212,0,.5);}
+  .cat-bulb.spin-highlight{transform:translateY(-4px) scale(1.05);box-shadow:0 10px 26px -10px rgba(255,255,255,.25);}
+  .cat-bulb .num{font-family:'Anton',sans-serif;font-size:12px;color:var(--turf);letter-spacing:.1em;}
+  .cat-bulb .name{font-family:'Baloo 2',sans-serif;font-weight:700;font-size:14px;margin-top:4px;}
+  .cat-bulb .who{font-size:13px;color:var(--chalk-dim);margin-top:2px;font-weight:600;}
+
+  .jumbotron{
+    position:relative;background:linear-gradient(160deg,var(--panel-2),var(--panel) 60%, #200f42);
+    border:2px solid var(--line);border-radius:28px;padding:60px 40px 48px;overflow:hidden;
+    box-shadow:0 0 0 1px rgba(255,255,255,.03), 0 30px 90px -20px rgba(255,46,154,.25);
+  }
+  .jumbotron::before{
+    content:'';position:absolute;inset:0;pointer-events:none;
+    background:repeating-linear-gradient(90deg, rgba(255,255,255,.025) 0 1px, transparent 1px 24px);
+  }
+  .sweep{
+    position:absolute;top:0;bottom:0;width:260px;left:-260px;
+    background:linear-gradient(90deg, transparent, rgba(255,255,255,.10), transparent);
+    animation:sweep 3s ease-in-out infinite;
+  }
+  @keyframes sweep{0%{left:-260px}55%{left:100%}100%{left:100%}}
+  .burst{
+    position:absolute;top:50%;left:50%;width:560px;height:560px;transform:translate(-50%,-56%);
+    background:repeating-conic-gradient(from 0deg, rgba(255,212,0,.16) 0deg 10deg, transparent 10deg 20deg);
+    border-radius:50%;animation:spin 14s linear infinite;pointer-events:none;opacity:0;transition:opacity .4s;
+  }
+  .burst.show{opacity:1;}
+  @keyframes spin{to{transform:translate(-50%,-56%) rotate(360deg)}}
+  .reel-label{font-family:'Baloo 2',sans-serif;font-size:14px;letter-spacing:.25em;color:var(--chalk-dim);font-weight:700;margin-bottom:18px;position:relative;}
+  .reel-name{
+    font-family:'Anton',sans-serif;font-size:clamp(42px,9vw,96px);position:relative;
+    height:1.05em;display:flex;align-items:center;justify-content:center;margin-bottom:26px;
+  }
+  .reel-name.spinning span{color:var(--chalk-dim);}
+  .reel-name.pop span{animation:pop 1.1s cubic-bezier(.34,1.56,.64,1);}
+  @keyframes pop{0%{transform:scale(.4) rotate(-6deg);opacity:0}60%{transform:scale(1.12) rotate(2deg);opacity:1}100%{transform:scale(1) rotate(0)}}
+  .reel-name .glow{
+    background:linear-gradient(90deg,var(--gold),var(--orange),var(--pink));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    filter:drop-shadow(0 0 30px rgba(255,106,0,.45));
+  }
+  .ticket{
+    display:inline-flex;align-items:center;gap:10px;position:relative;
+    background:linear-gradient(90deg, rgba(255,212,0,.18), rgba(255,106,0,.18));
+    border:2px dashed var(--gold);color:var(--gold);font-family:'Baloo 2',sans-serif;font-weight:700;
+    font-size:16px;padding:12px 26px;border-radius:999px;opacity:0;transform:translateY(8px);
+    transition:opacity .4s, transform .4s;
+  }
+  .ticket.show{opacity:1;transform:translateY(0);animation:wiggle 2.4s ease-in-out .4s infinite;}
+  @keyframes wiggle{0%,100%{transform:rotate(-1.5deg)}50%{transform:rotate(1.5deg)}}
+  .confetti{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
+  .confetti span{position:absolute;width:8px;height:14px;opacity:.9;border-radius:2px;top:-20px;}
+  .waiting-hint{color:var(--chalk-dim);font-size:14px;margin-top:14px;}
+
+  @media (max-width:700px){ .categories{grid-template-columns:repeat(2,1fr);} }
+</style>
+</head>
+<body>
+<div class="stadium-bg">
+  <div class="conn-badge off" id="connBadge">連線中…</div>
+  <div class="draw-wrap">
+    <div class="eyebrow"><span class="dot"></span>LIVE DRAW · 現場抽獎進行中</div>
+    <h1 class="title-xl">年度運動會<br><span class="accent">MVP</span> 榮耀時刻</h1>
+    <p class="subtitle">四項競賽冠軍已就位，等待主持人於後台開獎</p>
+
+    <div class="categories" id="categoryBulbs">
+      <div class="cat-bulb"><div class="num">01</div><div class="name">冠軍</div><div class="who">—</div></div>
+      <div class="cat-bulb"><div class="num">02</div><div class="name">冠軍</div><div class="who">—</div></div>
+      <div class="cat-bulb"><div class="num">03</div><div class="name">冠軍</div><div class="who">—</div></div>
+      <div class="cat-bulb"><div class="num">04</div><div class="name">冠軍</div><div class="who">—</div></div>
+    </div>
+
+    <div class="jumbotron">
+      <div class="sweep"></div>
+      <div class="burst" id="burst"></div>
+      <div class="confetti" id="confettiBox"></div>
+      <div class="reel-label">MVP 得主</div>
+      <div class="reel-name" id="reelName"><span>等待開獎</span></div>
+      <div class="ticket" id="ticket">🎟 獎品：老爺一日遊券</div>
+    </div>
+    <p class="waiting-hint">請主持人於手機後台輸入名單並按下「開始抽獎」</p>
+  </div>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script>
+/* ====== 請填入您自己的 Firebase 專案設定 ====== */
+const FIREBASE_CONFIG = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  databaseURL: "https://YOUR_PROJECT-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "YOUR_PROJECT",
+};
+/* ============================================ */
+
+firebase.initializeApp(FIREBASE_CONFIG);
+const db = firebase.database();
+const roomRef = db.ref('mvpDraw');
+
+let categories = [];
+let lastToken = null;
+let spinning = false;
+
+function renderBulbs(){
+  const box = document.getElementById('categoryBulbs');
+  box.innerHTML='';
+  categories.forEach((c,i)=>{
+    const el = document.createElement('div');
+    el.className = 'cat-bulb';
+    el.id = 'bulb'+i;
+    el.innerHTML = `<div class="num">0${i+1} · ${c.game}</div><div class="name">冠軍</div><div class="who">${c.name}</div>`;
+    box.appendChild(el);
+  });
+}
+
+function runDraw(winnerIndex){
+  if(spinning || categories.length===0) return;
+  spinning = true;
+  document.getElementById('burst').classList.remove('show');
+  document.getElementById('ticket').classList.remove('show');
+  document.getElementById('confettiBox').innerHTML='';
+
+  const reel = document.getElementById('reelName');
+  reel.classList.add('spinning');
+  reel.classList.remove('pop');
+
+  const winner = categories[winnerIndex];
+  let tick = 0;
+  const totalTicks = 24;
+  let delay = 70;
+
+  function step(){
+    const c = categories[tick % categories.length];
+    reel.innerHTML = `<span>${c.name}</span>`;
+    document.querySelectorAll('.cat-bulb').forEach(b=>b.classList.remove('spin-highlight'));
+    const hb = document.getElementById('bulb'+(tick % categories.length));
+    if(hb) hb.classList.add('spin-highlight');
+    tick++;
+    if(tick < totalTicks){
+      delay = delay * 1.12;
+      setTimeout(step, delay);
+    } else {
+      reel.classList.remove('spinning');
+      reel.innerHTML = `<span class="glow">${winner.name}</span>`;
+      reel.classList.add('pop');
+      document.querySelectorAll('.cat-bulb').forEach(b=>b.classList.remove('spin-highlight'));
+      const wbEl = document.getElementById('bulb'+winnerIndex);
+      if(wbEl) wbEl.classList.add('spin-highlight');
+      document.getElementById('burst').classList.add('show');
+      document.getElementById('ticket').classList.add('show');
+      spawnConfettiBurst();
+      spinning = false;
+    }
+  }
+  step();
+}
+
+function spawnConfettiBurst(){
+  const colors=['#FFD400','#00E6B8','#FF2E9A','#FF6A00','#FFFFFF'];
+  const box=document.getElementById('confettiBox');
+  for(let i=0;i<70;i++){
+    const el=document.createElement('span');
+    el.style.left=(8+Math.random()*84)+'%';
+    el.style.top=(-20-Math.random()*40)+'px';
+    el.style.background=colors[i%colors.length];
+    const duration = 1.8+Math.random()*2;
+    const delay = Math.random()*0.6;
+    el.style.animation=`fall ${duration}s ease-in ${delay}s forwards`;
+    box.appendChild(el);
+    setTimeout(()=>el.remove(), (duration+delay)*1000+200);
+  }
+}
+const styleTag=document.createElement('style');
+styleTag.innerHTML=`@keyframes fall{0%{transform:translateY(0) rotate(0deg);opacity:0}10%{opacity:1}100%{transform:translateY(520px) rotate(420deg);opacity:0}}`;
+document.head.appendChild(styleTag);
+
+// ===== Firebase 即時監聽 =====
+roomRef.on('value', (snap)=>{
+  document.getElementById('connBadge').textContent = '已連線';
+  document.getElementById('connBadge').classList.remove('off');
+  const data = snap.val();
+  if(!data) return;
+
+  if(Array.isArray(data.categories) && data.categories.length){
+    categories = data.categories;
+    if(!spinning) renderBulbs();
+  }
+
+  if(data.round && data.round.token !== lastToken){
+    lastToken = data.round.token;
+    if(data.round.status === 'spinning' && typeof data.round.winnerIndex === 'number'){
+      renderBulbs();
+      runDraw(data.round.winnerIndex);
+    }
+  }
+}, (err)=>{
+  document.getElementById('connBadge').textContent = '連線失敗';
+  document.getElementById('connBadge').classList.add('off');
+  console.error(err);
+});
+</script>
+</body>
+</html>
