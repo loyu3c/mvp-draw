@@ -26,6 +26,14 @@
     content:'';position:absolute;inset:0;pointer-events:none;
     background:repeating-linear-gradient(115deg, rgba(255,255,255,.035) 0 3px, transparent 3px 46px);
   }
+  .sport-deco{position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:hidden;}
+  .sport-deco svg{position:absolute;fill:none;stroke:currentColor;}
+  .deco-trophy{width:380px;height:420px;top:-4%;left:50%;transform:translateX(-50%);color:#fff;opacity:.05;}
+  .deco-basketball{width:210px;height:210px;top:8%;left:2%;transform:rotate(-14deg);color:var(--orange);opacity:.12;}
+  .deco-relay{width:190px;height:190px;top:12%;right:3%;transform:rotate(12deg);color:var(--turf);opacity:.12;}
+  .deco-bubbles{width:230px;height:230px;bottom:6%;left:3%;transform:rotate(6deg);color:var(--pink);opacity:.12;}
+  .deco-stretch{width:190px;height:190px;bottom:5%;right:4%;transform:rotate(-9deg);color:var(--gold);opacity:.12;}
+  @media (max-width:900px){ .sport-deco{display:none;} }
   .top-bar{position:fixed;top:16px;right:16px;display:flex;gap:8px;z-index:10;}
   .chip-btn{
     font-family:'Baloo 2',sans-serif;font-size:12px;font-weight:700;
@@ -130,6 +138,13 @@
 </head>
 <body>
 <div class="stadium-bg">
+  <div class="sport-deco" aria-hidden="true">
+    <svg class="deco-trophy" viewBox="0 0 100 120"><path d="M30 15h40v20a20 20 0 0 1-40 0z" stroke-width="4"/><path d="M30 20c-12 0-15 15-2 22M70 20c12 0 15 15 2 22" stroke-width="4"/><path d="M50 55v15M35 95h30M40 70h20l4 15h-28z" stroke-width="4"/></svg>
+    <svg class="deco-basketball" viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" stroke-width="4"/><path d="M8 50h84M50 8v84M20 20c20 20 40 20 60 0M20 80c20-20 40-20 60 0" stroke-width="4"/></svg>
+    <svg class="deco-relay" viewBox="0 0 100 100"><circle cx="60" cy="18" r="9" fill="currentColor"/><path d="M60 27 L50 55 L30 70 M50 55 L70 65 M50 40 L75 30 M50 40 L35 20" stroke-width="5" stroke-linecap="round"/></svg>
+    <svg class="deco-bubbles" viewBox="0 0 100 100"><circle cx="30" cy="60" r="18" stroke-width="3"/><circle cx="62" cy="35" r="12" stroke-width="3"/><circle cx="75" cy="65" r="9" stroke-width="3"/><circle cx="48" cy="80" r="6" stroke-width="3"/></svg>
+    <svg class="deco-stretch" viewBox="0 0 100 100"><circle cx="50" cy="18" r="9" fill="currentColor"/><path d="M50 27 L50 55 M50 34 L25 15 M50 34 L75 15 M50 55 L25 85 M50 55 L75 85" stroke-width="5" stroke-linecap="round"/></svg>
+  </div>
   <div class="top-bar">
     <button class="chip-btn" id="soundBtn" onclick="toggleAudio()">🔈 開啟音效</button>
     <button class="chip-btn" id="fsBtn" onclick="toggleFullscreen()">⛶ 全螢幕</button>
