@@ -73,6 +73,8 @@
   .btn:disabled{opacity:.4;cursor:not-allowed;}
   .btn-primary{background:linear-gradient(90deg,var(--pink),var(--orange));color:#fff;box-shadow:0 10px 24px -8px rgba(255,46,154,.55);}
   .btn-primary:hover:not(:disabled){transform:translateY(-2px);}
+  .btn-secondary{background:#160A30;color:var(--turf);border:2px solid rgba(0,230,184,.4);margin-top:14px;}
+  .btn-secondary:hover:not(:disabled){border-color:var(--turf);}
 
   .last-result{
     margin-top:6px;padding:14px 16px;border-radius:14px;background:rgba(255,212,0,.1);
@@ -115,6 +117,7 @@
         <div class="field"><label><span class="num-badge">4</span>項目名稱</label><input type="text" id="game4" value="動動" oninput="syncStatus()"></div>
         <div class="field"><label>第一名姓名</label><input type="text" id="name4" value="王小二" oninput="syncStatus()"></div>
       </div>
+      <button class="btn btn-secondary" id="syncBtn" onclick="syncCategories()">📤 同步名單到大螢幕</button>
     </div>
 
     <div class="form-card">
@@ -172,7 +175,18 @@ function syncStatus(){
   });
   warn.classList.toggle('show', !allFilled);
   document.getElementById('drawBtn').disabled = !allFilled;
+  document.getElementById('syncBtn').disabled = !allFilled;
   return allFilled;
+}
+
+function syncCategories(){
+  if(!syncStatus()) return;
+  roomRef.update({ categories: collectCategories() }).then(()=>{
+    showToast('✅ 名單已同步到大螢幕');
+  }).catch((err)=>{
+    showToast('❌ 同步失敗，請檢查網路或 Firebase 設定');
+    console.error(err);
+  });
 }
 
 function collectCategories(){
