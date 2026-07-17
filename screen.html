@@ -386,10 +386,14 @@ styleTag.innerHTML=`@keyframes fall{0%{transform:translateY(0) rotate(0deg);opac
 document.head.appendChild(styleTag);
 
 // ===== Firebase 即時監聽 =====
+let hasSeenInitialSnapshot = false;
+
 roomRef.on('value', (snap)=>{
   document.getElementById('connBadge').textContent = '已連線';
   document.getElementById('connBadge').classList.remove('off');
   const data = snap.val();
+  const isInitialSnapshot = !hasSeenInitialSnapshot;
+  hasSeenInitialSnapshot = true;
   if(!data) return;
 
   if(Array.isArray(data.categories) && data.categories.length){
@@ -397,11 +401,16 @@ roomRef.on('value', (snap)=>{
     if(!spinning) renderBulbs();
   }
 
-  if(data.round && data.round.token !== lastToken){
-    lastToken = data.round.token;
-    if(data.round.status === 'spinning' && typeof data.round.winnerIndex === 'number' && !spinning){
-      renderBulbs();
-      startCountdown(3, ()=> runDraw(data.round.winnerIndex));
+  if(data.round){
+    if(isInitialSnapshot){
+      // 畫面剛連上時，只記住目前的 token，不重播殘留在資料庫裡的上一輪結果
+      lastToken = data.round.token;
+    } else if(data.round.token !== lastToken){
+      lastToken = data.round.token;
+      if(data.round.status === 'spinning' && typeof data.round.winnerIndex === 'number' && !spinning){
+        renderBulbs();
+        startCountdown(3, ()=> runDraw(data.round.winnerIndex));
+      }
     }
   }
 }, (err)=>{
